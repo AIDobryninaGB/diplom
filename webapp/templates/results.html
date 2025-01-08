@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="result-desc">
+     {% if uptime %}
+        <p class="res-meta-inf">Время выполнения запроса: {{uptime}}</p>
+    {% endif %}
+    {% if data %}
+          <p class="res-meta-inf" >Количество вхождений: {{total}} </p>
+    {% endif %}
+    <h4>Параметры запроса</h4>
+        {% if full_q %}
+        <p><span class="res-meta-inf-name">Полнотекстовый запрос:</span> <i>{{full_q}}</i></p>
+        {% else %}
+
+            {% if q_dict %}
+                {% for n in q_dict_len%}
+                    {% if q_dict[n - 1]['lemma_q']%}
+                        <p><span class="res-meta-inf-name">Лемма №{{n}}:</span> <i>{{q_dict[n - 1]['lemma_q']}}</i></p>
+                    {% endif %}
+                    {% if q_dict[n - 1]['form_q']%}
+                        <p><span class="res-meta-inf-name">Словоформа №{{n}}:</span> <i>{{q_dict[n - 1]['form_q']}}</i></p>
+                    {% endif %}
+                    {% if q_dict[n - 1]['pos_q']%}
+                        <p><span class="res-meta-inf-name">Часть речи №{{n}}:</span>  <i>{{q_dict[n - 1]['pos_q']}}</i></p>
+                    {% endif %}
+                    {% if dist_q[n - 1] %}
+                    <p><span class="res-meta-inf-name">Расстояние:</span> {{dist_q[n - 1]}}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+        <br>
+        {% if themes %}
+              <p>Поиск по темам: {{themes}} </p>
+        {% endif %}
+
+        {% if communities %}
+              <p>Поиск по сообществам: {{communities}} </p>
+        {% endif %}
+
+        {% if datetime_after %}
+          <p>C {{datetime_after}}</p>
+        {% endif %}
+
+        {% if datetime_before %}
+            <p>По {{datetime_before}} </p>
+        {% endif %}
+    </div>
+
+    {%if data%}
+        <p>Результат запроса:</p>
+            {% for example in data %}
+                <p class="example">{{example[0]}}
+                    {{example[1] | safe }}
+                </p>
+                {% if example[2] %}
+                    <div class="meta_container">
+                          <p class="metadata">Название чата: {{example[3]}} ({{example[2]}})</p>
+                          <p class="metadata">Тема: {{example[4]}}</p>
+                          <p class="metadata">Дата и время: {{example[5]}}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+        <p>Ничего не нашлось :(</p>
+    {%endif%}
+
+          <!-- Пагинация -->
+              <nav aria-label="Page navigation">
+                  <ul class="pagination justify-content-center pi\]">
+                      <!-- Кнопка "Предыдущая" -->
+                      {% if page > 1 %}
+                          <li class="page-item">
+                              <a class="page-link" href="{{ url_for_other_page(page - 1) }}" aria-label="Предыдущая">
+                                  <span aria-hidden="true">&laquo;</span>
+                              </a>
+                          </li>
+                      {% else %}
+                          <li class="page-item disabled">
+                              <span class="page-link" aria-hidden="true">&laquo;</span>
+                          </li>
+                      {% endif %}
+
+                      <!-- Номера страниц с ограничением -->
+                      {% set start = page - 2 if page - 2 > 0 else 1 %}
+                      {% set end = page + 2 if page + 2 <= total_pages else total_pages %}
+                      {% if start > 1 %}
+                          <li class="page-item">
+                              <a class="page-link" href="{{ url_for_other_page(1) }}">1</a>
+                          </li>
+                          {% if start > 2 %}
+                              <li class="page-item disabled">
+                                  <span class="page-link">…</span>
+                              </li>
+                          {% endif %}
+                      {% endif %}
+
+                      {% for p in range(start, end + 1) %}
+                          {% if p == page %}
+                              <li class="page-item active">
+                                  <span class="page-link">{{ p }}</span>
+                              </li>
+                          {% else %}
+                              <li class="page-item">
+                                  <a class="page-link" href="{{ url_for_other_page(p) }}">{{ p }}</a>
+                              </li>
+                          {% endif %}
+                      {% endfor %}
+
+                      {% if end < total_pages %}
+                          {% if end < total_pages - 1 %}
+                              <li class="page-item disabled">
+                                  <span class="page-link">…</span>
+                              </li>
+                          {% endif %}
+                          <li class="page-item">
+                              <a class="page-link" href="{{ url_for_other_page(total_pages) }}">{{ total_pages }}</a>
+                          </li>
+                      {% endif %}
+
+                      <!-- Кнопка "Следующая" -->
+                      {% if page < total_pages %}
+                          <li class="page-item">
+                              <a class="page-link" href="{{ url_for_other_page(page + 1) }}" aria-label="Следующая">
+                                  <span aria-hidden="true">&raquo;</span>
+                              </a>
+                          </li>
+                      {% else %}
+                          <li class="page-item disabled">
+                              <span class="page-link" aria-hidden="true">&raquo;</span>
+                          </li>
+                      {% endif %}
+                  </ul>
+              </nav>
+  </div>
+{% endblock %}

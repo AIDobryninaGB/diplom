@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <form action="/res" method="get">
+            <details class="search-type">
+                <summary class="search-type-name">Задать метаинформацию</summary>
+
+                <h5 class="meta-info-header">Категория</h5>
+                <label for="sport">Спортивные чаты</label>
+                <input class="category" type="checkbox" id="sport" name="theme" value="Спортивный чат"/>
+                <label for="fandom">Чаты меломанов</label>
+                <input class="category" type="checkbox" id="fandom" name="theme" value="Чат мероприятия"/>
+                <label for="dorm">Чаты общежитий</label>
+                <input class="category" type="checkbox" id="dorm" name="theme" value="Чат студенческого общежития"/>
+                <label for="game">Чаты геймеров</label>
+                <input class="category" type="checkbox" id="game" name="theme" value="чаты геймеров"/>
+
+                <h5 class="meta-info-header">Сообщество</h5>
+
+                <div class="community_search_container">
+                    <div class="community-item">
+                        <input class="community-search" type="search"
+                      placeholder="Поиск по сообществу"
+                      list="communities" name="comm">
+                    <button class="add-btn">+</button>
+                    </div>
+
+                    <datalist id="communities">
+                        {% for comm in communities_list %}
+                            <option value="{{comm[0]}}"></option>
+                        {% endfor %}
+
+                    </datalist>
+                </div>
+
+                <h5 class="meta-info-header">Дата</h5>
+                    <p class="date-desc">Не ранее: </p>
+                    <input name="date-after" type="datetime-local">
+                    <p class="date-desc">Не позднее: </p>
+                    <input name="date-before" type="datetime-local">
+
+
+            </details>
+
+            <details class="search-type">
+                <summary class="search-type-name">Полнотекстовый поиск</summary>
+                <div class="search-box">
+                    <input type="text" class="search" name="full-text-q" placeholder="Полнотекстовый поиск">
+                    <button class="button reset">Очистить</button>
+                </div>
+            </details>
+
+            <details class="search-type">
+                <summary class="search-type-name">Расширенный поиск</summary>
+                <div class="search-n-gramm-container">
+                    <div class="search-one-word-container">
+                        <div>
+                            <h5 class="word-header">Слово 1</h5>
+                        <div class="search-window">
+                            <p class="word-search-type-name">Лемма</p>
+                            <input type="text" class="extend-search-input lemma-q" name="lemma-q-1" placeholder="Лемма">
+                        </div>
+
+                        <div class="search-window">
+                            <p class="word-search-type-name">Словоформа</p>
+                            <input type="text" class="extend-search-input form-q" name="form-q-1" placeholder="Словоформа">
+                        </div>
+
+                         <div class="search-window">
+                             <p class="word-search-type-name">Часть речи</p>
+                              <input type="text" class="extend-search-input pos-q" name="pos-q-1" placeholder="Часть речи">
+                          </div>
+                        </div>
+                    <button class="add-btn">+</button>
+                    <button class="del-btn">-</button>
+                    </div>
+                </div>
+            </details>
+
+<!--            <details class="search-type">-->
+<!--                <summary class="search-type-name">Дополнительные настройки</summary>-->
+<!--                <label for="register">Учитывать регистр</label>-->
+<!--                <input type="checkbox" name="register" id="register" value="True" class="option"/>-->
+<!--                <label for="remove-duplicates">Убрать дубликаты</label>-->
+<!--                <input type="checkbox" name="duplicates" id="remove-duplicates" value="True" class="option"/>-->
+<!--            </details>-->
+
+            <input type="submit" value="Найти" class="big-search-btn">
+        </form>
+    </div>
+
+    <script>
+    // кнопка добавления новых сообществ
+        const comm_container = document.querySelector('.community_search_container');
+        const comm_add_btn = comm_container.querySelector('.add-btn');
+        const comm_item = document.querySelector('.community-item');
+
+        function addNewComm (e) {
+            e.preventDefault();
+            const comm_item_new = comm_item.cloneNode(true);
+           const new_btn = comm_item_new.querySelector('.add-btn');
+           new_btn.addEventListener('click', addNewComm);
+            comm_container.append(comm_item_new);
+        }
+        comm_add_btn.addEventListener('click', addNewComm);
+
+        // кнопка добавления новых слов
+        const word_container = document.querySelector('.search-n-gramm-container');
+        const word_add_btn = word_container.querySelector('.add-btn');
+        const word_del_btn = word_container.querySelector('.del-btn');
+        const word_item = document.querySelector('.search-one-word-container');
+
+        function delListener (e) {
+            e.preventDefault();
+            const n_gram_len = word_container.children.length;
+            if (n_gram_len > 1) {
+                e.target.parentElement.remove();
+                for (let i = 0; i < n_gram_len - 1; i++) {
+                    const word_item_new = word_container.children[i];
+                    console.log(word_item_new)
+                    const new_header = word_item_new.querySelector('.word-header');
+                    const lemma = word_item_new.querySelector('.lemma-q');
+                    const form = word_item_new.querySelector('.form-q');
+                    const pos = word_item_new.querySelector('.pos-q');
+                    const dist = word_item_new.querySelector('.dist-q');
+
+                    lemma.setAttribute('name', `lemma-q-${i + 1}`);
+                    form.setAttribute('name', `form-q-${i + 1}`);
+                    pos.setAttribute('name', `pos-q-${i + 1}`);
+                    dist.setAttribute('name', `dist-q-${i + 1}`);
+                    new_header.textContent = `Слово ${i + 1}`;
+
+                    const dist_q = word_item_new.querySelector('.dist-q');
+                    if (dist_q) {
+                        if (i === 0) {
+                            dist_q.parentElement.remove();
+                        }
+                     }
+                };
+            }
+        }
+
+        word_del_btn.addEventListener('click', delListener);
+
+        function addNewSearch (e) {
+           e.preventDefault();
+           const word_item_new = word_item.cloneNode(true);
+           const new_header = word_item_new.querySelector('.word-header');
+           const lemma = word_item_new.querySelector('.lemma-q');
+           const form = word_item_new.querySelector('.form-q');
+           const pos = word_item_new.querySelector('.pos-q');
+           const n_gram_len = word_container.children.length + 1;
+
+           lemma.setAttribute('name', `lemma-q-${n_gram_len}`);
+           form.setAttribute('name', `form-q-${n_gram_len}`);
+           pos.setAttribute('name', `pos-q-${n_gram_len}`);
+           new_header.textContent = `Слово ${n_gram_len}`;
+
+           const new_btn = word_item_new.querySelector('.add-btn');
+           const new_del_btn = word_item_new.querySelector('.del-btn');
+           new_del_btn.addEventListener('click', delListener);
+           word_container.append(word_item_new);
+
+           new_btn.addEventListener('click', addNewSearch);
+
+           const dist_q = word_item_new.querySelector('.dist-q');
+                    if (! dist_q) {
+                        const first_dist_q = document.createElement('input');
+                        first_dist_q.classList.add('dist-q');
+                        first_dist_q.classList.add('extend-search-input');
+                        first_dist_q.setAttribute('name', `dist-q-${n_gram_len}`);
+                        first_dist_q.setAttribute('type', `number`);
+                        first_dist_q.setAttribute('min', `1`);
+                        first_dist_q.setAttribute('value', `1`);
+                        first_dist_q.setAttribute('value', `1`);
+                        const search_win = document.createElement('div');
+                        search_win.classList.add('search-window')
+                        const dist_header = document.createElement('p');
+                        dist_header.textContent = `Расстояние`;
+                        dist_header.classList.add('word-search-type-name');
+                        search_win.append(dist_header);
+                        search_win.append(first_dist_q);
+
+                        new_header.parentElement.append(search_win);
+                    }
+        }
+        word_add_btn.addEventListener('click', addNewSearch);
+
+        // кнопка отчистки полнотекстового поиска
+        const reset_btn = document.querySelector(".reset");
+        reset_btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.target.parentElement.children[0].value = '';
+            }
+        );
+
+    </script>
+{% endblock %}

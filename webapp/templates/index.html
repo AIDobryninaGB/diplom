@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+            <h1 class="main-header">Корпус переписок</h1>
+            <p class="desc">Коллекция текстов на русском языке, собранная на основе данных групповых чатов разных сообществ.</p>
+    <form class="form-main" action="/res" method="get">
+        <div class="search-box">
+                    <input type="text" class="search" name="lemma-q-1" placeholder="Поиск"}>
+                    <input type="submit" value="Найти" class="button">
+                </div>
+        <div>
+            <a href="/search" class="inctruction-link">РАСШИРЕННЫЙ ПОИСК</a>
+        </div>
+        <div>
+            <a href="/instruction" class="inctruction-link">ИНСТРУКЦИЯ</a>
+        </div>
+    </form>
+</div>
+    {% endblock %}
